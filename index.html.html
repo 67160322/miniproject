@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plastic Manufacturing Performance Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Kanit', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Kanit', sans-serif;
+            background-color: #f8fafc;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <header class="bg-slate-900 text-white sticky top-0 z-50 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-brand-500 p-2 rounded-lg text-white">
+                    <i class="fa-solid fa-industry text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg sm:text-xl font-bold leading-tight">Plastic Manufacturing Performance Dashboard</h1>
+                    <p class="text-xs text-slate-400 hidden sm:block">ระบบติดตามและวิเคราะห์ประสิทธิภาพการผลิตพลาสติก</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3 text-sm">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                    <span class="w-2 h-2 mr-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+                    สถานะสายการผลิต: ปกติ
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <section class="glass-card rounded-2xl p-4 shadow-sm">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div class="flex items-center space-x-2 text-slate-700 font-medium">
+                    <i class="fa-solid fa-filter text-brand-600"></i>
+                    <span>ตัวกรองข้อมูลการผลิต</span>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full md:w-auto">
+                    <div>
+                        <label for="material-select" class="block text-xs font-medium text-slate-500 mb-1">ชนิดเม็ดพลาสติก</label>
+                        <select id="material-select" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <option value="all">ทั้งหมด (All Resins)</option>
+                            <option value="PP">PP (Polypropylene)</option>
+                            <option value="HDPE">HDPE (High-Density Polyethylene)</option>
+                            <option value="PET">PET (Polyethylene Terephthalate)</option>
+                            <option value="LDPE">LDPE (Low-Density Polyethylene)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="shift-select" class="block text-xs font-medium text-slate-500 mb-1">กะการทำงาน</label>
+                        <select id="shift-select" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <option value="all">ทุกกะการทำงาน</option>
+                            <option value="morning">กะเช้า (08:00 - 16:00)</option>
+                            <option value="afternoon">กะบ่าย (16:00 - 24:00)</option>
+                            <option value="night">กะดึก (00:00 - 08:00)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="time-select" class="block text-xs font-medium text-slate-500 mb-1">ช่วงเวลา</label>
+                        <select id="time-select" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <option value="today">วันนี้</option>
+                            <option value="week">สัปดาห์นี้</option>
+                            <option value="month" selected>เดือนนี้</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- KPI 1 -->
+            <div class="glass-card rounded-2xl p-5 shadow-sm border-l-4 border-l-brand-500 hover:shadow-md transition-shadow">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">ยอดการผลิตรวม</span>
+                    <div class="p-2 bg-brand-50 text-brand-600 rounded-lg">
+                        <i class="fa-solid fa-boxes-stacked"></i>
+                    </div>
+                </div>
+                <div class="mt-2 flex items-baseline justify-between">
+                    <span class="text-2xl font-bold text-slate-900" id="kpi-total-output">142,500</span>
+                    <span class="text-xs font-medium text-slate-500">กก.</span>
+                </div>
+                <div class="mt-2 text-xs text-emerald-600 flex items-center">
+                    <i class="fa-solid fa-arrow-up mr-1"></i>
+                    <span>+4.2% จากเป้าหมาย</span>
+                </div>
+            </div>
+
+            <!-- KPI 2 -->
+            <div class="glass-card rounded-2xl p-5 shadow-sm border-l-4 border-l-emerald-500 hover:shadow-md transition-shadow">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">ประสิทธิภาพเครื่องจักร (OEE)</span>
+                    <div class="p-2 bg-emerald-50 text-emerald-600 rounded-lg">
+                        <i class="fa-solid fa-gauge-high"></i>
+                    </div>
+                </div>
+                <div class="mt-2 flex items-baseline justify-between">
+                    <span class="text-2xl font-bold text-slate-900" id="kpi-oee">84.6%</span>
+                    <span class="text-xs font-medium text-slate-500">เป้าหมาย 85%</span>
+                </div>
+                <div class="mt-2 text-xs text-emerald-600 flex items-center">
+                    <i class="fa-solid fa-arrow-up mr-1"></i>
+                    <span>+1.5% จากเดือนที่แล้ว</span>
+                </div>
+            </div>
+
+            <!-- KPI 3 -->
+            <div class="glass-card rounded-2xl p-5 shadow-sm border-l-4 border-l-rose-500 hover:shadow-md transition-shadow">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">อัตราของเสีย (Scrap Rate)</span>
+                    <div class="p-2 bg-rose-50 text-rose-600 rounded-lg">
+                        <i class="fa-solid fa-dumpster"></i>
+                    </div>
+                </div>
+                <div class="mt-2 flex items-baseline justify-between">
+                    <span class="text-2xl font-bold text-slate-900" id="kpi-scrap-rate">4.2%</span>
+                    <span class="text-xs font-medium text-slate-500">เป้าหมาย &lt; 3.0%</span>
+                </div>
+                <div class="mt-2 text-xs text-rose-600 flex items-center">
+                    <i class="fa-solid fa-arrow-up mr-1"></i>
+                    <span>สูงกว่าเป้าหมาย 1.2%</span>
+                </div>
+            </div>
+
+            <!-- KPI 4 -->
+            <div class="glass-card rounded-2xl p-5 shadow-sm border-l-4 border-l-amber-500 hover:shadow-md transition-shadow">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">สูญเสียจากของเสีย (Scrap Cost)</span>
+                    <div class="p-2 bg-amber-50 text-amber-600 rounded-lg">
+                        <i class="fa-solid fa-coins"></i>
+                    </div>
+                </div>
+                <div class="mt-2 flex items-baseline justify-between">
+                    <span class="text-2xl font-bold text-slate-900" id="kpi-scrap-cost">฿269,325</span>
+                    <span class="text-xs font-medium text-slate-500">บาท</span>
+                </div>
+                <div class="mt-2 text-xs text-slate-500 flex items-center">
+                    <span>เฉลี่ย ฿45/กก.</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-rose-50 border border-rose-200 rounded-2xl p-4 flex items-start space-x-3 shadow-sm">
+            <div class="p-2 bg-rose-100 text-rose-600 rounded-lg shrink-0 mt-0.5">
+                <i class="fa-solid fa-triangle-exclamation text-lg"></i>
+            </div>
+            <div class="flex-1">
+                <h3 class="text-sm font-semibold text-rose-900">แจ้งเตือนคุณภาพ: พบอัตราของเสียสูงผิดปกติในไลน์ผลิต PET</h3>
+                <p class="text-xs text-rose-700 mt-1">
+                    เม็ดพลาสติกประเภท <span class="font-bold">PET</span> มีอัตราของเสียสะสม <span class="font-bold">8.5%</span> ซึ่งสูงเกินเกณฑ์ควบคุม (Threshold 5.0%) โดยมีสาเหตุหลักจากความชื้นในวัตถุดิบและอุณหภูมิหลอมละลายไม่เสถียร แนะนำให้ตรวจสอบระบบอบเม็ดพลาสติก (Dehumidifying Dryer)
+                </p>
+            </div>
+        </section>
+
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Chart 1: Production Output vs Scrap -->
+            <div class="glass-card rounded-2xl p-5 shadow-sm flex flex-col">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-base font-bold text-slate-800">ปริมาณการผลิตและของเสีย แยกตามชนิดพลาสติก</h2>
+                    <span class="text-xs text-slate-400">หน่วย: กิโลกรัม</span>
+                </div>
+                <div class="relative flex-1 min-h-[300px]">
+                    <canvas id="outputChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Chart 2: Scrap Rate Trend -->
+            <div class="glass-card rounded-2xl p-5 shadow-sm flex flex-col">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-base font-bold text-slate-800">แนวโน้มอัตราของเสีย (%) รายสัปดาห์</h2>
+                    <span class="text-xs text-slate-400">เส้นสีแดงคือ Threshold 5%</span>
+                </div>
+                <div class="relative flex-1 min-h-[300px]">
+                    <canvas id="scrapTrendChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section class="glass-card rounded-2xl p-5 shadow-sm">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+                <div>
+                    <h2 class="text-base font-bold text-slate-800">ตารางสรุปประสิทธิภาพการผลิตแยกตามประเภทเม็ดพลาสติก</h2>
+                    <p class="text-xs text-slate-500">ข้อมูลสรุปการใช้วัตถุดิบ ปริมาณผลิต และมูลค่าความเสียหาย</p>
+                </div>
+                <button onclick="exportData()" class="inline-flex items-center justify-center px-3 py-1.5 border border-slate-300 shadow-sm text-xs font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 focus:outline-none">
+                    <i class="fa-solid fa-download mr-1.5 text-slate-500"></i>
+                    ส่งออกข้อมูล (CSV)
+                </button>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-slate-600">
+                    <thead class="text-xs text-slate-700 uppercase bg-slate-100/80 rounded-lg">
+                        <tr>
+                            <th scope="col" class="px-4 py-3 rounded-l-lg">ชนิดพลาสติก</th>
+                            <th scope="col" class="px-4 py-3 text-right">ยอดผลิตทั้งหมด (กก.)</th>
+                            <th scope="col" class="px-4 py-3 text-right">ของเสีย (กก.)</th>
+                            <th scope="col" class="px-4 py-3 text-right">Scrap Rate (%)</th>
+                            <th scope="col" class="px-4 py-3 text-right">ต้นทุนของเสีย (บาท)</th>
+                            <th scope="col" class="px-4 py-3 text-center rounded-r-lg">สถานะ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body" class="divide-y divide-slate-200">
+                        <!-- Dynamic JavaScript Rows -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-auto py-4">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-400">
+            Plastic Manufacturing Performance Dashboard &copy; 2026. All rights reserved.
+        </div>
+    </footer>
+
+    <script>
+        // Sample Data Set
+        const productionData = [
+            { resin: "PP", name: "Polypropylene", output: 52000, scrap: 1560, pricePerKg: 42 },
+            { resin: "HDPE", name: "High-Density PE", output: 38000, scrap: 1140, pricePerKg: 45 },
+            { resin: "PET", name: "Polyethylene Terephthalate", output: 28000, scrap: 2380, pricePerKg: 48 },
+            { resin: "LDPE", name: "Low-Density PE", output: 24500, scrap: 895, pricePerKg: 40 }
+        ];
+
+        let outputChart, scrapTrendChart;
+
+        // Initialize App
+        window.onload = function() {
+            renderTable();
+            initCharts();
+            setupEventListeners();
+        };
+
+        // Render Table Data
+        function renderTable() {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+
+            productionData.forEach(item => {
+                const scrapRate = ((item.scrap / item.output) * 100).toFixed(1);
+                const scrapCost = (item.scrap * item.pricePerKg).toLocaleString();
+                
+                let statusBadge = '<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-800">ปกติ</span>';
+                if (scrapRate >= 5.0) {
+                    statusBadge = '<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-rose-100 text-rose-800">วิกฤต (&gt;5%)</span>';
+                } else if (scrapRate >= 3.5) {
+                    statusBadge = '<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800">เฝ้าระวัง</span>';
+                }
+
+                const row = `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-4 py-3 font-semibold text-slate-800">${item.resin} <span class="text-xs text-slate-400 font-normal">(${item.name})</span></td>
+                        <td class="px-4 py-3 text-right">${item.output.toLocaleString()}</td>
+                        <td class="px-4 py-3 text-right font-medium text-rose-600">${item.scrap.toLocaleString()}</td>
+                        <td class="px-4 py-3 text-right font-bold">${scrapRate}%</td>
+                        <td class="px-4 py-3 text-right">฿${scrapCost}</td>
+                        <td class="px-4 py-3 text-center">${statusBadge}</td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        }
+
+        // Initialize Charts with Chart.js
+        function initCharts() {
+            // Chart 1: Output & Scrap
+            const ctx1 = document.getElementById('outputChart').getContext('2d');
+            outputChart = new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: productionData.map(d => d.resin),
+                    datasets: [
+                        {
+                            label: 'ผลผลิตดี (กก.)',
+                            data: productionData.map(d => d.output - d.scrap),
+                            backgroundColor: '#0ea5e9',
+                            borderRadius: 6
+                        },
+                        {
+                            label: 'ของเสีย Scrap (กก.)',
+                            data: productionData.map(d => d.scrap),
+                            backgroundColor: '#f43f5e',
+                            borderRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' }
+                    },
+                    scales: {
+                        x: { stacked: true },
+                        y: { stacked: true, beginAtZero: true }
+                    }
+                }
+            });
+
+            // Chart 2: Scrap Trend Line Chart
+            const ctx2 = document.getElementById('scrapTrendChart').getContext('2d');
+            scrapTrendChart = new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: ['สัปดาห์ 1', 'สัปดาห์ 2', 'สัปดาห์ 3', 'สัปดาห์ 4'],
+                    datasets: [
+                        {
+                            label: 'PP',
+                            data: [2.8, 3.1, 2.9, 3.0],
+                            borderColor: '#3b82f6',
+                            tension: 0.3
+                        },
+                        {
+                            label: 'HDPE',
+                            data: [3.5, 3.2, 3.0, 3.0],
+                            borderColor: '#10b981',
+                            tension: 0.3
+                        },
+                        {
+                            label: 'PET',
+                            data: [4.5, 5.2, 6.8, 8.5],
+                            borderColor: '#f43f5e',
+                            borderWidth: 3,
+                            tension: 0.3
+                        },
+                        {
+                            label: 'เกณฑ์ควบคุมสูงสุด (5%)',
+                            data: [5, 5, 5, 5],
+                            borderColor: '#94a3b8',
+                            borderDash: [5, 5],
+                            pointRadius: 0,
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, max: 10 }
+                    }
+                }
+            });
+        }
+
+        // Setup Filter Interactivity
+        function setupEventListeners() {
+            document.getElementById('material-select').addEventListener('change', function(e) {
+                const val = e.target.value;
+                if (val === 'all') {
+                    document.getElementById('kpi-total-output').innerText = '142,500';
+                    document.getElementById('kpi-scrap-rate').innerText = '4.2%';
+                    document.getElementById('kpi-scrap-cost').innerText = '฿269,325';
+                } else {
+                    const selected = productionData.find(d => d.resin === val);
+                    if (selected) {
+                        document.getElementById('kpi-total-output').innerText = selected.output.toLocaleString();
+                        const rate = ((selected.scrap / selected.output) * 100).toFixed(1);
+                        document.getElementById('kpi-scrap-rate').innerText = `${rate}%`;
+                        const cost = (selected.scrap * selected.pricePerKg).toLocaleString();
+                        document.getElementById('kpi-scrap-cost').innerText = `฿${cost}`;
+                    }
+                }
+            });
+        }
+
+        // Export Function
+        function exportData() {
+            let csvContent = "data:text/csv;charset=utf-8,Resin,Total Output (kg),Scrap (kg),Scrap Rate (%)\n";
+            productionData.forEach(row => {
+                const rate = ((row.scrap / row.output) * 100).toFixed(1);
+                csvContent += `${row.resin},${row.output},${row.scrap},${rate}%\n`;
+            });
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "plastic_production_summary.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>
